@@ -1,9 +1,13 @@
 package com.warmhouse.temperatureapi.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -12,6 +16,11 @@ import java.util.Random;
 public class TemperatureController {
 
     private final Random random = new Random();
+
+    @GetMapping("/temperature/{sensorId}")
+    public Map<String, Object> getTemperatureById(@PathVariable String sensorId) {
+        return getTemperature(null, sensorId);
+    }
 
     @GetMapping("/temperature")
     public Map<String, Object> getTemperature(
@@ -50,10 +59,15 @@ public class TemperatureController {
         double temperature = 18 + (26 - 18) * random.nextDouble();
 
         Map<String, Object> response = new HashMap<>();
-        response.put("sensorId", sensorId);
+        response.put("sensor_id", sensorId);
         response.put("location", location);
-        response.put("temperature", Math.round(temperature * 100.0) / 100.0);
+        response.put("value", Math.round(temperature * 100.0) / 100.0);
         response.put("unit", "Celsius");
+        response.put("status", "active");
+        response.put("sensor_type", "temperature");
+        response.put("description", "Temperature sensor reading");
+        response.put("timestamp", OffsetDateTime.now(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
         return response;
     }
